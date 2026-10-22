@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AI Workflow Challenge</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Open+Sans:wght@300;400;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #1F2A30;
+    --deep-teal: #2F4A45;
+    --accent: #2A7F62;
+    --sky: #8FC9B5;
+    --pale-sky: #C9E4DA;
+    --pale: #EEF6F2;
+    --gold: #E3C364;
+    --green: #4CAF50;
+    --red: #CD4025;
+    --text: #1a1a1a;
+    --text-dim: #545454;
+  }
+  body { font-family: 'Open Sans', sans-serif; background: #f5f8fa; color: var(--text); min-height: 100vh; }
+
+  /* Header */
+  .header { background: var(--navy); padding: 18px 24px; text-align: center; border-bottom: 4px solid var(--accent); }
+  .header h1 { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.4rem; color: var(--sky); }
+  .header .sub { color: var(--pale-sky); font-size: 0.8rem; margin-top: 2px; }
+
+  .team-banner {
+    background: var(--deep-teal);
+    color: white;
+    padding: 8px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  .team-banner .tname { font-weight: 700; }
+  .team-banner .leave { background: none; border: none; color: var(--pale-sky); font-family: inherit; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+
+  /* Tabs */
+  .tabs { display: flex; background: white; border-bottom: 1px solid var(--pale-sky); position: sticky; top: 0; z-index: 50; }
+  .tabs button { flex: 1; background: none; border: none; padding: 12px 8px; font-family: 'Open Sans', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tabs button:hover { color: var(--accent); }
+  .tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .panel { display: none; padding: 20px 24px; max-width: 800px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  /* ── REGISTRATION ── */
+  .reg-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; padding: 24px; }
+  .reg-card { background: white; border-radius: 14px; border: 1px solid var(--pale-sky); padding: 32px; width: 100%; max-width: 420px; }
+  .reg-card h2 { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.3rem; color: var(--navy); margin-bottom: 4px; text-align: center; }
+  .reg-card .reg-sub { color: var(--text-dim); font-size: 0.85rem; text-align: center; margin-bottom: 20px; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--deep-teal); margin-bottom: 4px; }
+  .field input { width: 100%; border: 1px solid var(--pale-sky); border-radius: 8px; padding: 10px 12px; font-family: 'Open Sans', sans-serif; font-size: 0.95rem; outline: none; }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: #aaa; }
+
+  .members-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .members-fields input { font-size: 0.85rem; padding: 8px 10px; }
+
+  .reg-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'Open Sans', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+  .reg-btn:hover { background: var(--deep-teal); }
+  .reg-btn:disabled { background: var(--pale-sky); cursor: not-allowed; }
+
+  .or-divider { text-align: center; color: var(--text-dim); font-size: 0.8rem; margin: 18px 0; position: relative; }
+  .or-divider::before, .or-divider::after { content: ''; position: absolute; top: 50%; width: 38%; height: 1px; background: var(--pale-sky); }
+  .or-divider::before { left: 0; }
+  .or-divider::after { right: 0; }
+
+  .facilitator-link { text-align: center; }
+  .facilitator-link button { background: none; border: 1px solid var(--pale-sky); border-radius: 8px; padding: 10px 20px; color: var(--text-dim); font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  .facilitator-link button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-strip {
+    background: white;
+    border: 1px solid var(--pale-sky);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-ring { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring .ring-bg { stroke: var(--pale); }
+  .progress-ring .ring-fill { stroke: var(--accent); transition: stroke-dashoffset 0.4s; }
+  .progress-ring .ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Merriweather', serif; font-weight: 900; font-size: 0.85rem; color: var(--accent); }
+  .progress-info { flex: 1; }
+  .progress-info .prog-label { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+  .progress-info .prog-detail { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+  .progress-pts { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.3rem; color: var(--accent); }
+
+  /* ── CHALLENGES ── */
+  .golden-rule { background: var(--navy); color: var(--pale-sky); border-radius: 10px; padding: 14px 18px; font-size: 0.85rem; text-align: center; margin-bottom: 16px; line-height: 1.4; }
+  .golden-rule strong { color: white; }
+
+  .sprint-label { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.05rem; color: var(--deep-teal); margin: 20px 0 8px 0; display: flex; align-items: center; gap: 10px; }
+  .sprint-label:first-of-type { margin-top: 0; }
+  .sprint-label .pts-badge { font-family: 'Open Sans', sans-serif; font-size: 0.72rem; font-weight: 600; background: var(--pale); color: var(--accent); padding: 2px 10px; border-radius: 12px; }
+  .sprint2-color { color: var(--sky); }
+
+  .challenge { background: white; border: 1px solid var(--pale-sky); border-radius: 10px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; cursor: pointer; }
+  .challenge.done { border-color: var(--green); background: #f0faf0; }
+  .challenge.capstone-card { border-color: var(--accent); background: rgba(42,127,98,0.03); }
+  .challenge.capstone-card.done { border-color: var(--green); background: #f0faf0; }
+
+  .challenge-top { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; }
+
+  .challenge-check { width: 26px; height: 26px; border: 2px solid var(--pale-sky); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; margin-top: 1px; background: white; }
+  .challenge:hover .challenge-check { border-color: var(--accent); }
+  .challenge.done .challenge-check { background: var(--green); border-color: var(--green); }
+  .challenge.done .challenge-check::after { content: '✓'; color: white; font-weight: 800; font-size: 0.9rem; }
+
+  .challenge-num { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1rem; color: var(--deep-teal); min-width: 24px; margin-top: 2px; }
+  .challenge.done .challenge-num { color: var(--green); }
+
+  .challenge-body { flex: 1; }
+  .challenge-title { font-weight: 700; font-size: 0.92rem; color: var(--navy); }
+  .challenge.done .challenge-title { text-decoration: line-through; text-decoration-color: var(--green); }
+  .challenge-desc { font-size: 0.82rem; color: var(--text-dim); line-height: 1.4; margin-top: 3px; }
+
+  .challenge-pts { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1rem; color: var(--accent); min-width: 40px; text-align: right; margin-top: 2px; }
+  .challenge.done .challenge-pts { color: var(--green); }
+
+  .challenge-expand { padding: 0 16px 14px 52px; display: none; }
+  .challenge.open .challenge-expand { display: block; }
+
+  .challenge-prompt { padding: 8px 12px; background: var(--pale); border-radius: 6px; font-size: 0.78rem; color: var(--deep-teal); font-style: italic; line-height: 1.4; border-left: 3px solid var(--accent); margin-bottom: 6px; }
+  .challenge-tip { font-size: 0.76rem; color: var(--accent); font-weight: 600; }
+
+  .ingredient { background: var(--navy); border-radius: 10px; padding: 16px; text-align: center; margin: 8px 0 14px 0; }
+  .ingredient .ingredient-title { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.3rem; color: var(--sky); }
+  .ingredient .ingredient-sub { color: white; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .ingredient .ingredient-desc { color: var(--pale-sky); font-size: 0.78rem; margin-top: 6px; line-height: 1.4; }
+
+  /* ── SCOREBOARD ── */
+  .board { background: white; border-radius: 12px; border: 1px solid var(--pale-sky); overflow: hidden; }
+  .board-header { display: grid; grid-template-columns: 32px 1fr 52px 52px 62px; background: var(--navy); color: white; font-size: 0.72rem; font-weight: 600; padding: 8px 14px; gap: 6px; align-items: center; }
+  .board-header span:nth-child(n+3) { text-align: center; }
+
+  .board-row { display: grid; grid-template-columns: 32px 1fr 52px 52px 62px; padding: 10px 14px; gap: 6px; align-items: center; border-bottom: 1px solid var(--pale); }
+  .board-row:last-child { border-bottom: none; }
+  .board-row:nth-child(even) { background: var(--pale); }
+  .board-row.rank-1 { background: rgba(227,195,100,0.1); }
+
+  .board-rank { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1rem; color: var(--deep-teal); }
+  .board-row.rank-1 .board-rank { color: var(--gold); }
+  .board-name { font-weight: 700; color: var(--navy); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .board-row.rank-1 .board-name::before { content: '🏆 '; }
+  .board-row.is-me { border-left: 3px solid var(--accent); }
+  .board-row.is-me .board-name::after { content: ' (you)'; font-weight: 400; font-size: 0.75rem; color: var(--accent); }
+  .board-sprint { text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); }
+  .board-total { text-align: center; font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.05rem; color: var(--accent); }
+  .board-row.rank-1 .board-total { color: var(--gold); }
+
+  .board-bar { grid-column: 1 / -1; height: 3px; background: var(--pale); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+  .board-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.4s; }
+  .board-row.rank-1 .board-bar-fill { background: var(--gold); }
+
+  .winner-reveal { display: none; background: var(--navy); border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 20px; border: 3px solid var(--gold); }
+  .winner-reveal.visible { display: block; }
+  .winner-reveal .big-trophy { font-size: 2.5rem; }
+  .winner-reveal .w-label { color: var(--pale-sky); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; margin-top: 6px; }
+  .winner-reveal .w-name { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.5rem; color: var(--gold); margin-top: 6px; }
+  .winner-reveal .w-score { color: var(--pale-sky); font-size: 0.85rem; margin-top: 4px; }
+
+  .no-scores { padding: 40px 20px; text-align: center; color: var(--text-dim); font-size: 0.9rem; }
+
+  /* Facilitator controls */
+  .fac-controls { margin-top: 16px; padding: 16px; background: white; border: 1px dashed var(--pale-sky); border-radius: 10px; }
+  .fac-controls h3 { font-size: 0.85rem; color: var(--deep-teal); margin-bottom: 10px; }
+  .fac-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .fac-table th { text-align: left; padding: 4px 6px; font-weight: 600; color: var(--text-dim); font-size: 0.75rem; }
+  .fac-table td { padding: 4px 6px; }
+  .fac-table input[type="text"] { width: 100%; border: 1px solid var(--pale-sky); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 0.85rem; }
+  .fac-table input[type="number"] { width: 56px; border: 1px solid var(--pale-sky); border-radius: 4px; padding: 6px; text-align: center; font-family: inherit; font-size: 0.85rem; }
+  .fac-btn { padding: 8px 16px; border-radius: 8px; font-family: inherit; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: none; margin-top: 10px; margin-right: 6px; }
+  .fac-btn-save { background: var(--accent); color: white; }
+  .fac-btn-reveal { background: var(--gold); color: var(--navy); }
+  .fac-btn-add { background: white; color: var(--accent); border: 1px solid var(--accent); }
+
+  @media (max-width: 500px) {
+    .header { padding: 14px 16px; }
+    .panel { padding: 16px; }
+    .board-header, .board-row { grid-template-columns: 26px 1fr 42px 42px 52px; padding: 8px 10px; }
+    .members-fields { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>The AI Workflow Challenge</h1>
+</div>
+
+<div class="team-banner" id="teamBanner" style="display:none;">
+  <span class="tname" id="bannerName"></span>
+  <button class="leave" onclick="leaveTeam()">switch team</button>
+</div>
+
+<div class="tabs" id="navTabs" style="display:none;">
+  <button class="active" onclick="showTab('challenges')">Challenges</button>
+  <button onclick="showTab('scoreboard')">Scoreboard</button>
+</div>
+
+<!-- ── REGISTRATION ── -->
+<div id="regScreen" class="reg-screen">
+  <div class="reg-card">
+    <h2>Join The AI Workflow Challenge</h2>
+    <p class="reg-sub">Register your team to start the challenge</p>
+
+    <div class="field">
+      <label>Team name</label>
+      <input type="text" id="regName" placeholder="Pick something fun..." maxlength="30" oninput="checkRegReady()">
+    </div>
+
+    <div class="field">
+      <label>Team members</label>
+      <div class="members-fields">
+        <input type="text" id="regM1" placeholder="Member 1" oninput="checkRegReady()">
+        <input type="text" id="regM2" placeholder="Member 2">
+        <input type="text" id="regM3" placeholder="Member 3">
+        <input type="text" id="regM4" placeholder="Member 4">
+      </div>
+    </div>
+
+    <button class="reg-btn" id="regBtn" disabled onclick="registerTeam()">Start challenge →</button>
+
+    <div class="or-divider">or</div>
+
+    <div class="facilitator-link">
+      <button onclick="enterFacilitator()">I'm a facilitator</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHALLENGES ── -->
+<div class="panel" id="panel-challenges">
+
+  <div class="progress-strip" id="progressStrip">
+    <div class="progress-ring">
+      <svg width="52" height="52"><circle class="ring-bg" cx="26" cy="26" r="22" fill="none" stroke-width="4"/><circle class="ring-fill" id="ringFill" cx="26" cy="26" r="22" fill="none" stroke-width="4" stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round"/></svg>
+      <div class="ring-text" id="ringText">0/11</div>
+    </div>
+    <div class="progress-info">
+      <div class="prog-label" id="progLabel">No challenges completed</div>
+      <div class="prog-detail" id="progDetail">Tap a challenge to mark it done</div>
+    </div>
+    <div class="progress-pts" id="progPts">0</div>
+  </div>
+
+  <div class="golden-rule">
+    <strong>Ask Claude first</strong>, not the facilitators. Iterate on your prompts. That's the skill.<br>📸 Screenshot your results as proof.
+  </div>
+
+  <div class="sprint-label">Sprint 1: Google Drive <span class="pts-badge">25 pts · 38 min</span></div>
+  <div id="challengeList1"></div>
+
+  <div class="sprint-label sprint2-color">Sprint 2: Asana + Capstone <span class="pts-badge">22 pts · 32 min</span></div>
+
+  <div class="ingredient">
+    <div class="ingredient-title">Mystery ingredient</div>
+    <div class="ingredient-sub">The new direction</div>
+    <div class="ingredient-desc">[The lab's new strategic direction, in one line.]<br>Your Project 2.0 must serve it. Ask Claude to help you think it through.</div>
+  </div>
+
+  <div id="challengeList2"></div>
+</div>
+
+<!-- ── SCOREBOARD ── -->
+<div class="panel" id="panel-scoreboard">
+  <div class="winner-reveal" id="winnerReveal">
+    <div class="big-trophy">🏆</div>
+    <div class="w-label">And the winner of the AI Workflow Challenge is...</div>
+    <div class="w-name" id="winnerName"></div>
+    <div class="w-score" id="winnerScore"></div>
+  </div>
+
+  <div class="board" id="scoreboardBoard">
+    <div class="board-header"><span>#</span><span>Team</span><span>Spr 1</span><span>Spr 2</span><span>Total</span></div>
+    <div id="boardRows"></div>
+  </div>
+
+  <div class="fac-controls" id="facControls" style="display:none;">
+    <h3>Facilitator: Enter scores</h3>
+    <table class="fac-table">
+      <thead><tr><th>Team</th><th style="width:64px">Spr 1</th><th style="width:64px">Spr 2</th></tr></thead>
+      <tbody id="facTableBody"></tbody>
+    </table>
+    <div>
+      <button class="fac-btn fac-btn-save" onclick="saveScores()">Update scoreboard</button>
+      <button class="fac-btn fac-btn-reveal" onclick="revealWinner()">🏆 Reveal winner</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Challenge data ──
+const CHALLENGES = [
+  { id:1, sprint:1, title:'Find the Project\'s docs', desc:'Get Claude to locate the Project\'s documents in Google Drive.', pts:2,
+    prompt:'"Search my Google Drive for any documents related to the Project. What can you find?"' },
+  { id:2, sprint:1, title:'Summarize a document', desc:'Get Claude to read and summarize a specific Project document.', pts:3,
+    prompt:'"Read [document name] and give me a summary. What\'s this document about?"' },
+  { id:3, sprint:1, title:'Extract milestones', desc:'Pull out specific milestones or deliverables from the Project\'s docs.', pts:3,
+    prompt:'"What were the key milestones or deliverables for the Project?"' },
+  { id:4, sprint:1, title:'Compare two documents', desc:'Compare two Project documents: find differences or contradictions.', pts:5,
+    prompt:'"Compare [document A] and [document B]. What changed between them?"',
+    tip:'If Claude is vague, push it: "Be more specific. What exactly changed?"' },
+  { id:5, sprint:1, title:'Identify gaps', desc:'Analyze the Project\'s docs and find what\'s missing, incomplete, or unclear.', pts:5,
+    prompt:'"Based on the Project\'s documents, what questions are left unanswered?"',
+    tip:'Give context: "We\'re considering reviving the Project. What would we need to figure out?"' },
+  { id:6, sprint:1, title:'Synthesize a briefing', desc:'Pull from multiple docs to create one executive briefing.', pts:7,
+    prompt:'"Create a 1-page executive briefing on the Project: what it was, what it accomplished, why it matters, what\'s unresolved."',
+    tip:'Hardest Sprint 1 challenge. Try: "Write this for someone deciding whether to fund a revival."' },
+  { id:7, sprint:2, title:'Create Project 2.0', desc:'Get Claude to create a new Asana project for Project 2.0.', pts:3,
+    prompt:'"Create a new Asana project called \'Project 2.0 - [Your Team Name]\' focused on [the new direction]."' },
+  { id:8, sprint:2, title:'Add sections + tasks (new direction)', desc:'Organize the project with sections and tasks framed around the new direction.', pts:4,
+    prompt:'"Add sections organized around [the new direction]. What would the key workstreams be? Add 3–5 tasks each."',
+    tip:'Stuck? Ask Claude: "How might a project like this serve [the new direction]?"' },
+  { id:9, sprint:2, title:'Write a status update', desc:'Get Claude to write a project status update for Project 2.0.', pts:3,
+    prompt:'"Write a status update: what we\'ve set up, our approach to [the new direction], and next steps."' },
+  { id:10, sprint:2, title:'Organize by priority', desc:'Get Claude to prioritize and sequence your tasks.', pts:5,
+    prompt:'"Organize tasks by priority: what should we tackle first and why?"',
+    tip:'"Don\'t just say high/medium/low. Give me the order and what depends on what."' },
+  { id:11, sprint:2, title:'⭐ Capstone: Takeaway slide', desc:'Create a slide with: (1) Your Project 2.0 vision in 2–3 sentences, and (2) one tedious task from YOUR real job Claude could help with.', pts:7,
+    prompt:'"Help me create a summary slide for our Project 2.0 vision around [the new direction]."',
+    tip:'Worth the most points. Don\'t skip this!', capstone:true },
+];
+
+const TOTAL_PTS = 47;
+const CIRC = 2 * Math.PI * 22; // ring circumference
+
+// ── State ──
+let state = load();
+
+function defaults() {
+  return { role: null, teamName: '', members: [], completed: {}, scores: [] };
+}
+
+function load() {
+  try { const s = localStorage.getItem('aiWorkflowChallenge'); if (s) return JSON.parse(s); } catch(e) {}
+  return defaults();
+}
+
+function save() { localStorage.setItem('aiWorkflowChallenge', JSON.stringify(state)); }
+
+// ── Registration ──
+function checkRegReady() {
+  const name = document.getElementById('regName').value.trim();
+  const m1 = document.getElementById('regM1').value.trim();
+  document.getElementById('regBtn').disabled = !(name && m1);
+}
+
+function registerTeam() {
+  state.role = 'team';
+  state.teamName = document.getElementById('regName').value.trim();
+  state.members = [
+    document.getElementById('regM1').value.trim(),
+    document.getElementById('regM2').value.trim(),
+    document.getElementById('regM3').value.trim(),
+    document.getElementById('regM4').value.trim(),
+  ].filter(Boolean);
+  state.completed = {};
+
+  // Add self to scores if not there
+  addSelfToScores();
+  save();
+  enterApp();
+}
+
+function enterFacilitator() {
+  state.role = 'facilitator';
+  save();
+  enterApp();
+}
+
+function leaveTeam() {
+  if (confirm('Switch team? Your challenge progress will be reset.')) {
+    const scores = state.scores; // preserve scores
+    state = defaults();
+    state.scores = scores;
+    save();
+    location.reload();
+  }
+}
+
+function addSelfToScores() {
+  if (!state.scores) state.scores = [];
+  const exists = state.scores.find(t => t.name.toLowerCase() === state.teamName.toLowerCase());
+  if (!exists) {
+    state.scores.push({ name: state.teamName, s1: 0, s2: 0 });
+  }
+}
+
+// ── App entry ──
+function enterApp() {
+  document.getElementById('regScreen').style.display = 'none';
+  document.getElementById('navTabs').style.display = 'flex';
+
+  if (state.role === 'team') {
+    document.getElementById('teamBanner').style.display = 'flex';
+    document.getElementById('bannerName').textContent = state.teamName;
+  }
+
+  if (state.role === 'facilitator') {
+    document.getElementById('facControls').style.display = 'block';
+  }
+
+  buildChallenges();
+  showTab('challenges');
+}
+
+// ── Tabs ──
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  const idx = ['challenges','scoreboard'].indexOf(name);
+  if (idx >= 0) document.querySelectorAll('.tabs button')[idx].classList.add('active');
+  if (name === 'scoreboard') renderScoreboard();
+}
+
+// ── Challenges ──
+function buildChallenges() {
+  const list1 = document.getElementById('challengeList1');
+  const list2 = document.getElementById('challengeList2');
+  list1.innerHTML = '';
+  list2.innerHTML = '';
+
+  CHALLENGES.forEach(ch => {
+    const el = document.createElement('div');
+    el.className = 'challenge' + (ch.capstone ? ' capstone-card' : '') + (state.completed[ch.id] ? ' done' : '');
+    el.id = 'ch' + ch.id;
+
+    el.innerHTML = `
+      <div class="challenge-top" onclick="toggleDone(${ch.id})">
+        <div class="challenge-check"></div>
+        <div class="challenge-num">#${ch.id}</div>
+        <div class="challenge-body">
+          <div class="challenge-title">${ch.title}</div>
+          <div class="challenge-desc">${ch.desc}</div>
+        </div>
+        <div class="challenge-pts">${ch.pts} pts</div>
+      </div>
+      <div class="challenge-expand">
+        <div class="challenge-prompt">${esc(ch.prompt)}</div>
+        ${ch.tip ? '<div class="challenge-tip">💡 ' + ch.tip + '</div>' : ''}
+      </div>
+    `;
+
+    // Tap title area to expand, check to toggle done
+    el.querySelector('.challenge-body').addEventListener('click', (e) => {
+      e.stopPropagation();
+      el.classList.toggle('open');
+    });
+
+    (ch.sprint === 1 ? list1 : list2).appendChild(el);
+  });
+
+  updateProgress();
+}
+
+function toggleDone(id) {
+  state.completed[id] = !state.completed[id];
+  save();
+
+  const el = document.getElementById('ch' + id);
+  el.classList.toggle('done', !!state.completed[id]);
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = CHALLENGES.filter(c => state.completed[c.id]);
+  const count = done.length;
+  const pts = done.reduce((s, c) => s + c.pts, 0);
+  const pct = count / CHALLENGES.length;
+
+  // Ring
+  const offset = CIRC * (1 - pct);
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+  document.getElementById('ringText').textContent = count + '/11';
+
+  // Labels
+  document.getElementById('progPts').textContent = pts;
+  if (count === 0) {
+    document.getElementById('progLabel').textContent = 'No challenges completed';
+    document.getElementById('progDetail').textContent = 'Tap a challenge to mark it done';
+  } else if (count === 11) {
+    document.getElementById('progLabel').textContent = 'All challenges complete!';
+    document.getElementById('progDetail').textContent = pts + ' / 47 points earned';
+  } else {
+    document.getElementById('progLabel').textContent = count + ' of 11 challenges done';
+    const s1 = CHALLENGES.filter(c => c.sprint===1 && state.completed[c.id]).length;
+    const s2 = CHALLENGES.filter(c => c.sprint===2 && state.completed[c.id]).length;
+    document.getElementById('progDetail').textContent = `Sprint 1: ${s1}/6 · Sprint 2: ${s2}/5`;
+  }
+}
+
+// ── Scoreboard ──
+function renderScoreboard() {
+  const rows = document.getElementById('boardRows');
+  if (!state.scores || state.scores.length === 0) {
+    rows.innerHTML = '<div class="no-scores">No scores yet. Check back after Sprint 1!</div>';
+    renderFacTable();
+    return;
+  }
+
+  const sorted = [...state.scores].sort((a,b) => (b.s1+b.s2) - (a.s1+a.s2));
+
+  rows.innerHTML = sorted.map((t, i) => {
+    const total = t.s1 + t.s2;
+    const pct = Math.round((total / TOTAL_PTS) * 100);
+    const isMe = state.role === 'team' && t.name.toLowerCase() === state.teamName.toLowerCase();
+    return `
+      <div class="board-row rank-${i+1}${isMe ? ' is-me' : ''}">
+        <div class="board-rank">${i+1}</div>
+        <div class="board-name">${esc(t.name)}</div>
+        <div class="board-sprint">${t.s1}</div>
+        <div class="board-sprint">${t.s2}</div>
+        <div class="board-total">${total}</div>
+        <div class="board-bar"><div class="board-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }).join('');
+
+  renderFacTable();
+}
+
+function renderFacTable() {
+  if (state.role !== 'facilitator') return;
+  const body = document.getElementById('facTableBody');
+  if (!state.scores) state.scores = [];
+  while (state.scores.length < 5) state.scores.push({ name: '', s1: 0, s2: 0 });
+
+  body.innerHTML = state.scores.map((t, i) => `
+    <tr>
+      <td><input type="text" value="${esc(t.name)}" id="fn${i}" placeholder="Team ${i+1}"></td>
+      <td><input type="number" value="${t.s1}" min="0" max="25" id="fs1_${i}"></td>
+      <td><input type="number" value="${t.s2}" min="0" max="22" id="fs2_${i}"></td>
+    </tr>
+  `).join('');
+}
+
+function saveScores() {
+  const teams = [];
+  for (let i = 0; i < state.scores.length; i++) {
+    const name = document.getElementById('fn' + i)?.value?.trim() || '';
+    const s1 = Math.min(25, Math.max(0, parseInt(document.getElementById('fs1_' + i)?.value) || 0));
+    const s2 = Math.min(22, Math.max(0, parseInt(document.getElementById('fs2_' + i)?.value) || 0));
+    if (name || s1 || s2) teams.push({ name, s1, s2 });
+  }
+  state.scores = teams;
+  save();
+  renderScoreboard();
+}
+
+function revealWinner() {
+  if (!state.scores || state.scores.length === 0) return;
+  const sorted = [...state.scores].sort((a,b) => (b.s1+b.s2) - (a.s1+a.s2));
+  const w = sorted[0];
+  document.getElementById('winnerName').textContent = w.name || 'Team 1';
+  document.getElementById('winnerScore').textContent = (w.s1 + w.s2) + ' / 47 points';
+  document.getElementById('winnerReveal').classList.add('visible');
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Init ──
+if (state.role) {
+  enterApp();
+}
+</script>
+
+</body>
+</html>

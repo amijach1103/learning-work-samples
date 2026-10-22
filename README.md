@@ -19,4 +19,10 @@ A week before the workshop, a co-facilitator proposed turning it into a team com
 5. [Presenter kit](05-presenter-kit.md): how I recruit and brief colleagues to present at the AI forum.
 6. [Follow-up challenge](06-follow-up-challenge.md): one thing to try on a real spreadsheet the week after a forum session, at two levels, with a report-back at the next session.
 
+## Supporting materials
+
+7. [Challenge dashboard](07-challenge-dashboard.html): a one-page app I proposed for the workshop. Teams register, check off challenges as they finish them, and a facilitator enters scores and reveals the winner. I designed it and built it with Claude; the team decided to run the workshop without it. Open it in a browser; progress is saved only in that browser.
+8. [Pilot setup guide](08-pilot-setup-guide.md): written for the pilot participants, to connect Claude to Asana and Google Drive before they started, with test prompts and troubleshooting.
+9. [Workshop setup one-pager](09-workshop-setup-one-pager.md): the short version for everyone attending the workshop.
+
 aguedaschwartz.com · linkedin.com/in/amijach
